@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: tg_bot_db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: tg_bot_app
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db  # Имя сервиса базы данных
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - BOT_NAME=${TELEGRAM_BOT_NAME}
+      - BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    restart: on-failure
+
+volumes:
+  postgres_data:
